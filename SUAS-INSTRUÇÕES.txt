@@ -1,0 +1,6 @@
+PONTOS IDENTIFICADOS NO LOG
+
+	Há diferenciações com o nome dos corredores 
+		- 038 – F.MASS e 038 – F.MASSA
+		
+	No conteúdo do log não é padronizado, há lugares com \t e outros somente com espaço
