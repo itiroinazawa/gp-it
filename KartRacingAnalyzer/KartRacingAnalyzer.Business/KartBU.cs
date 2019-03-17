@@ -8,13 +8,20 @@ using System.Text;
 
 namespace KartRacingAnalyzer.Business
 {
-    public class KartBU
+    public class KartBU : IKartBU
     {
-        public void ExecutarCorrida(string fullFilePath)
-        {
-            List<CorridaResult> resultado = new List<CorridaResult>();
+        private readonly IRacingStatisticalBU racingStatisticalBU;
 
-            Dictionary<string, List<CorridaData>> dataByRacer = new Dictionary<string, List<CorridaData>>();
+        public KartBU()
+        {
+            racingStatisticalBU = new RacingStatisticalBU();
+        }
+
+        public Tuple<List<RacingResult>, Dictionary<string, List<RacingData>>> ExecuteRace(string fullFilePath)
+        {
+            List<RacingResult> finalResultList = new List<RacingResult>();
+
+            Dictionary<string, List<RacingData>> dataByRacer = new Dictionary<string, List<RacingData>>();
 
             string[] lines = File.ReadAllLines(fullFilePath, Encoding.UTF8).Where(x => !string.IsNullOrEmpty(x.Trim())).ToArray();
 
@@ -28,35 +35,64 @@ namespace KartRacingAnalyzer.Business
 
                 UpdateRacerData(ref dataByRacer, item);
 
-                if (item.VoltaData.Numero == 4 || i == lines.Length - 1)
+                if (item.LapData.Number == 4 || i == lines.Length - 1)
                 {
-                    VerificarPosicao(ref resultado, dataByRacer[item.PilotoData.Codigo]);
+                    VerifyRacerPosition(ref finalResultList, dataByRacer[item.RacerData.Code]);
                 }
-            }
+            }            
+
+            return Tuple.Create(finalResultList, dataByRacer);
         }
 
-        private void UpdateRacerData(ref Dictionary<string, List<CorridaData>> dataByPiloto, CorridaData data)
+        private void UpdateRacerData(ref Dictionary<string, List<RacingData>> dataByRacer, RacingData lapData)
         {
-            if (dataByPiloto.ContainsKey(data.PilotoData.Codigo))
+            if (dataByRacer.ContainsKey(lapData.RacerData.Code))
             {
-                dataByPiloto[data.PilotoData.Codigo].Add(data);
+                dataByRacer[lapData.RacerData.Code].Add(lapData);
             }
             else
             {
-                dataByPiloto[data.PilotoData.Codigo] = new List<CorridaData>() { data };
+                dataByRacer[lapData.RacerData.Code] = new List<RacingData>() { lapData };
             }
         }
 
-        private void VerificarPosicao(ref List<CorridaResult> resultado, List<CorridaData> dataRacer)
+        private void VerifyRacerPosition(ref List<RacingResult> finalResultList, List<RacingData> dataRacer)
         {
             CorridaResultParser parser = new CorridaResultParser();
 
-            var tempoTotal = new TimeSpan(dataRacer.Sum(x => x.VoltaData.Tempo.Ticks));
-            var posicao = resultado.Count > 0 ? resultado.Last().PosicaoChegada + 1 : 1;
+            var totalTime = new TimeSpan(dataRacer.Sum(x => x.LapData.Time.Ticks));
+            var position = finalResultList.Count > 0 ? finalResultList.Last().FinishingPosition + 1 : 1;
 
-            var item = parser.Parse(dataRacer.Last(), posicao, tempoTotal);
+            var item = parser.Parse(dataRacer.Last(), position, totalTime);
 
-            resultado.Add(item);
+            finalResultList.Add(item);
+        }
+
+        private void ExtraStatistics(List<RacingResult> finalResultList, Dictionary<string, List<RacingData>> dataByRacer)
+        {
+            var fullRaceData = new List<RacingData>();
+            fullRaceData.AddRange(dataByRacer.SelectMany(y => y.Value));
+
+            for (int i = 0; i < finalResultList.Count; i++)
+            {
+                racingStatisticalBU.GetBestLapByRacer(dataByRacer[finalResultList[i].RacerData.Code]);
+            }
+
+            racingStatisticalBU.GetBestLapRacing(fullRaceData);
+
+            for (int i = 0; i < finalResultList.Count; i++)
+            {
+                racingStatisticalBU.GetRacerAverageSpeed(dataByRacer[finalResultList[i].RacerData.Code]);
+            }
+
+            var winnerCode = finalResultList[0].RacerData.Code;
+            var winnerLastLap = dataByRacer[winnerCode].Last().LapData.Time;
+
+            for (int i = 1; i < finalResultList.Count; i++)
+            {
+                var racerLastLap = dataByRacer[finalResultList[i].RacerData.Code].Last().LapData.Time;
+                racingStatisticalBU.GetFinishingTimeAfterWinner(winnerLastLap, racerLastLap);
+            }
         }
     }
 }

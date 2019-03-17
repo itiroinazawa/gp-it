@@ -4,9 +4,9 @@ using System.Text;
 
 namespace KartRacingAnalyzer.Model
 {
-    public class Piloto
+    public class Racer
     {
-        public String Codigo { get; set; }
-        public String Nome { get; set; }
+        public String Code { get; set; }
+        public String Name { get; set; }
     }
 }

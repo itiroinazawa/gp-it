@@ -7,17 +7,17 @@ namespace KartRacingAnalyzer.Util
 {
     public class CorridaResultParser
     {
-        public CorridaResult Parse(CorridaData item, int posicao, TimeSpan tempoTotal)
+        public RacingResult Parse(RacingData item, int finishingPosition, TimeSpan totalTime)
         {
-            CorridaResult model = new CorridaResult
+            RacingResult model = new RacingResult
             {
-                PosicaoChegada = posicao,
-                QuantidadeVoltasCompletadas = item.VoltaData.Numero,
-                TempoTotalProva = tempoTotal
+                FinishingPosition = finishingPosition,
+                CompletedLaps = item.LapData.Number,
+                TotalRacingTime = totalTime
             };
 
-            model.Piloto.Codigo = item.PilotoData.Codigo;
-            model.Piloto.Nome = item.PilotoData.Nome;
+            model.RacerData.Code = item.RacerData.Code;
+            model.RacerData.Name = item.RacerData.Name;
 
             return model;
         }
