@@ -1,6 +1,11 @@
+A aplicação é uma console application e foi desenvolvida utilizando .NET Core 2.0 
+Escrevi o programa utilizando inglês como padrão de nomenclatura para facilitar o entendimento do código em qualquer país.
+
+Ao executar o sistema, é necessário passar o caminho do log como parametro do executável.
+
 PONTOS IDENTIFICADOS NO LOG
 
-	Há diferenciações com o nome dos corredores 
+	Há diferenciações com o nome dos corredores, assim utilizei como base somente o código do corredor e não seu nome
 		- 038 – F.MASS e 038 – F.MASSA
 		
 	No conteúdo do log não é padronizado, há lugares com \t e outros somente com espaço
