@@ -7,12 +7,7 @@ namespace KartRacingAnalyzer
     class Program
     {
         const string RESULTADO = "Posição Chegada: {0} - Código Piloto: {1} - Nome Piloto: {2} - Qtde Voltas Completadas: {3} - Tempo Total de Prova: {4}";
-
-        public Program()
-        {
-
-        }
-
+        
         static void Main(string[] args)
         {
             var file = @"C:\Users\itiro\Desktop\Job-Tests\Gympass\github\gp-it\Files\kart-racing.log";

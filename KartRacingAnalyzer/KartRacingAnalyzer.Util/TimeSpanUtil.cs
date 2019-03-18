@@ -6,6 +6,11 @@ namespace KartRacingAnalyzer.Util
 {
     public static class TimeSpanUtil
     {
+        /// <summary>
+        /// Parse a string received from log information to a TimeSpan 
+        /// </summary>
+        /// <param name="timeString">Time string e.g.: (1:02.852)</param>
+        /// <returns>Timespan parsed</returns>
         public static TimeSpan Parse(string timeString)
         {
             var arr = timeString.Split(":");

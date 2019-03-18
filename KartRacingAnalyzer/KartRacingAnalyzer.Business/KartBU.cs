@@ -12,11 +12,15 @@ namespace KartRacingAnalyzer.Business
     {
         private readonly IRacingStatisticalBU racingStatisticalBU;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public KartBU()
         {
             racingStatisticalBU = new RacingStatisticalBU();
         }
 
+        /// <inheritdoc />
         public Tuple<List<RacingResult>, Dictionary<string, List<RacingData>>> ExecuteRace(string fullFilePath)
         {
             List<RacingResult> finalResultList = new List<RacingResult>();
@@ -39,11 +43,16 @@ namespace KartRacingAnalyzer.Business
                 {
                     VerifyRacerPosition(ref finalResultList, dataByRacer[item.RacerData.Code]);
                 }
-            }            
+            }
 
             return Tuple.Create(finalResultList, dataByRacer);
         }
 
+        /// <summary>
+        /// Update the racer information in the collection
+        /// </summary>
+        /// <param name="dataByRacer">Collection of data by racer</param>
+        /// <param name="lapData">Current lap information</param>
         private void UpdateRacerData(ref Dictionary<string, List<RacingData>> dataByRacer, RacingData lapData)
         {
             if (dataByRacer.ContainsKey(lapData.RacerData.Code))
@@ -56,6 +65,11 @@ namespace KartRacingAnalyzer.Business
             }
         }
 
+        /// <summary>
+        /// Add racer information in the ranking collection
+        /// </summary>
+        /// <param name="finalResultList">ranking collection</param>
+        /// <param name="dataRacer">racer information</param>
         private void VerifyRacerPosition(ref List<RacingResult> finalResultList, List<RacingData> dataRacer)
         {
             CorridaResultParser parser = new CorridaResultParser();
@@ -66,33 +80,6 @@ namespace KartRacingAnalyzer.Business
             var item = parser.Parse(dataRacer.Last(), position, totalTime);
 
             finalResultList.Add(item);
-        }
-
-        private void ExtraStatistics(List<RacingResult> finalResultList, Dictionary<string, List<RacingData>> dataByRacer)
-        {
-            var fullRaceData = new List<RacingData>();
-            fullRaceData.AddRange(dataByRacer.SelectMany(y => y.Value));
-
-            for (int i = 0; i < finalResultList.Count; i++)
-            {
-                racingStatisticalBU.GetBestLapByRacer(dataByRacer[finalResultList[i].RacerData.Code]);
-            }
-
-            racingStatisticalBU.GetBestLapRacing(fullRaceData);
-
-            for (int i = 0; i < finalResultList.Count; i++)
-            {
-                racingStatisticalBU.GetRacerAverageSpeed(dataByRacer[finalResultList[i].RacerData.Code]);
-            }
-
-            var winnerCode = finalResultList[0].RacerData.Code;
-            var winnerLastLap = dataByRacer[winnerCode].Last().LapData.Time;
-
-            for (int i = 1; i < finalResultList.Count; i++)
-            {
-                var racerLastLap = dataByRacer[finalResultList[i].RacerData.Code].Last().LapData.Time;
-                racingStatisticalBU.GetFinishingTimeAfterWinner(winnerLastLap, racerLastLap);
-            }
         }
     }
 }

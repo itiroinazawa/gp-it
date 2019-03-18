@@ -6,6 +6,11 @@ namespace KartRacingAnalyzer.Util
 {
     public class CorridaDataParser
     {
+        /// <summary>
+        /// Parse information from a string based on the log information to a RacingData object
+        /// </summary>
+        /// <param name="line">Information from log</param>
+        /// <returns>Racing Data parsed</returns>
         public RacingData Parse(string line)
         {
             RacingData item = null;
